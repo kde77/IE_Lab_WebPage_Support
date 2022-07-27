@@ -1,0 +1,71 @@
+{% extends 'blog/base.html' %}
+
+{% block main_area %}
+
+    {% if user.is_authenticated %}
+        {% if user.is_superuser or user.is_staff %}
+            <a class="btn btn-info btn-sm float-right" href="/blog/create_post/" role="button">
+            <i class="fas fa-pencil"></i>
+                &nbsp;&nbsp;게시글 작성</a>
+            <br><br>
+        {% endif %}
+    {% endif %}
+
+    {% if post_list.exists %}
+        {% for p in post_list %}
+            <!-- Blog post-->
+            <div class="card mb-4">
+                {% if p.head_image %}
+                    <img class="card-img-top" src="{{ p.head_image.url }}" alt="{{ p }} head image" />
+                {% comment %}
+                {% else %}
+                    <img class="card-img-top" src="https://picsum.photos/seed/{{ p.id }}/850/350" alt="random image"/>
+                {% endcomment %}
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="card-title h4">{{ p.title }}</h2>
+                    {% if p.hook_text %}
+                        <h5 class="text-muted">{{ p.hook_text }}</h5>
+                    {% endif %}
+                    <p class="card-text">{{ p.get_content_markdown | truncatewords_html:50 | safe}}</p>
+                    <a class="btn btn-primary" href="{{ p.get_absolute_url }}">Read more →</a>
+                </div>
+                <div class="card-footer text-muted">
+                    Posted on {{ p.created_at }} by
+                    <a href="#">{{ p.author | upper }}</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h3>아직 게시물이 없습니다!</h3>
+    {% endif %}
+
+    {% if is_paginated %}
+    <!-- Pagination -->
+    <ul class="pagination justify-content-center my-4">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">이전</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#">이전</a>
+            </li>
+        {% endif %}
+
+        <h5>&nbsp;{{ page_obj }}&nbsp;</h5>
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">다음</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#">다음</a>
+            </li>
+        {% endif %}
+
+    </ul>
+    {% endif %}
+
+{% endblock %}
